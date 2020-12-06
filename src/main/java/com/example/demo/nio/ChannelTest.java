@@ -2,13 +2,11 @@ package com.example.demo.nio;
 
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 /**
@@ -32,8 +30,35 @@ import java.nio.file.StandardOpenOption;
 public class ChannelTest {
 
 
+    /**
+     * FileChannel 测试
+     *  transferFrom
+     *  transferTo
+     */
+    @Test
+    public void fileChannelTest(){
+        FileChannel in = null;
+        FileChannel out = null;
+        try {
+            in = FileChannel.open(Paths.get("F:\\哇哈哈哈哈.txt"), StandardOpenOption.READ);
+            out = FileChannel.open(Paths.get("F:\\fileIn.txt"),StandardOpenOption.WRITE, StandardOpenOption.CREATE);
 
+            // 起点 数据终点位置 limit ,往哪个地方写
+            // in.transferTo(0, in.size(), out);
+            out.transferFrom(in, 0, in.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                in.close();
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
+        }
+
+    }
 
     /**
      *  通过 FileChannel 写入数据

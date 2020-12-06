@@ -5,7 +5,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
@@ -30,6 +29,19 @@ public class ScatterAndGatherTest {
         // 将通道中的是数据读取到 多个 Buffer 中，这时候通道会往多个 Buffer 中写数据，第一个写满，就写第二个
        fileChannel.read(bufferArray);
 
+    }
+
+    @Test
+    public void testGather() throws IOException {
+        FileChannel fileChannel = FileChannel.open(Paths.get("F:\\芦田爱菜.bmp"), StandardOpenOption.WRITE);
+
+        ByteBuffer buffer1 = ByteBuffer.allocate(100);
+        ByteBuffer buffer2 = ByteBuffer.allocate(1024);
+
+        ByteBuffer[] bufferArray = {buffer1, buffer2};
+
+        // 将多个 Buffer 数据写入到通道中，只会写入 position - limit 之间的数据
+        fileChannel.write(bufferArray);
 
     }
 }
