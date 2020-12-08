@@ -124,10 +124,13 @@ public class TcpClient {
     }
 
     public static void main(String[] args) throws IOException {
-        TcpClient tcpClient = new TcpClient("127.0.0.1", 8989);
-        System.out.println("请输入需要发送的信息：");
-        Scanner scanner = new Scanner(System.in);
-        String msg = scanner.nextLine();
-        tcpClient.sengMag(msg);
+        while(true){
+            TcpClient tcpClient = new TcpClient("127.0.0.1", 8989);
+            System.out.println("请输入需要发送的信息：");
+            Scanner scanner = new Scanner(System.in);
+            String msg = scanner.nextLine();
+            tcpClient.sengMag(msg);
+        }
+
     }
 }
