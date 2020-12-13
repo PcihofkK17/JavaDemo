@@ -4,6 +4,9 @@ package com.example.demo.thread;
  * 〈一句话功能简述〉
  * 多线程中的生产者消费者模型
  *
+ *  如果是 多生产者和多消费者的话，就是 notifyAll()
+ *         单生产者和单消费者的话，就是 notify()
+ *
  * @author bf
  * @create 2018/2/7
  * @see [相关类/方法]（可选）
@@ -172,3 +175,5 @@ class Customer{
         }.start();
     }
 }
+
+
