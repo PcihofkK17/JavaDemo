@@ -13,32 +13,57 @@ public class ProCusDemo {
 
     public static void main(String[] args){
         Dept dept = new Dept(100);
-        Produce produce = new Produce(dept);
-        Customer customer = new Customer(dept);
-        Customer customer2 = new Customer(dept);
+        Produce mPro1 = new Produce(dept);
+        Produce mPro2 = new Produce(dept);
 
-        produce.produce(160);
-        customer.customer(80);
-        customer2.customer(30);
-        produce.produce(40);
-        produce.produce(80);
-        customer.customer(110);
-        customer.customer(70);
-        produce.produce(30);
+        Customer mCus1 = new Customer(dept);
+        Customer mCus2 = new Customer(dept);
+
+        mPro1.produce(20);
+        mCus1.customer(30);
+        mCus2.customer(50);
+        mPro2.produce(60);
+        mPro1.produce(80);
+        mCus1.customer(120);
+        mPro1.produce(60);
+        mCus1.customer(30);
+        mPro1.produce(70);
+        mCus1.customer(50);
+
+        /**
+         *
+         * Thread-0 produce( 20) --> left=  0, inc= 20, size= 20
+         Thread-9 customer( 50) --> left= 30, inc= 20, size=  0
+         等待生产 ing ..........
+         Thread-8 produce( 70) --> left=  0, inc= 70, size= 70
+         Thread-7 customer( 30) --> left=  0, inc= 30, size= 40
+         Thread-6 produce( 60) --> left=  0, inc= 60, size=100
+         Thread-5 customer(120) --> left= 20, inc=100, size=  0
+         等待生产 ing ..........
+         Thread-4 produce( 80) --> left=  0, inc= 80, size= 80
+         Thread-3 produce( 60) --> left= 40, inc= 20, size=100
+         等待消费 ing ...........
+         Thread-2 customer( 50) --> left=  0, inc= 50, size= 50
+         Thread-1 customer( 30) --> left=  0, inc= 30, size= 20
+         Thread-3 produce( 60) --> left=  0, inc= 40, size= 60
+         Thread-5 customer(120) --> left=  0, inc= 20, size= 40
+         Thread-9 customer( 50) --> left=  0, inc= 30, size= 10
+
+         可以看出，消费完了之后，生产者就会进行生产，生产打到最大值了，就会通知消费者进行消费
+         * */
     }
 
 }
 
-
 /**
- *  生产工厂
+ * 生产者消费者模型工厂，负责生产数据和消费数据
  */
 class Dept{
 
-    /** 生产容量 */
+    /** 工厂总容量 */
     private int capacity;
 
-    /** 仓库的实际容量 */
+    /** 工厂当前容量 */
     private int size;
 
     public Dept(int capacity) {
@@ -47,67 +72,67 @@ class Dept{
     }
 
     /**
-     * 生产
+     *  生产数据，必须要加 synchronized 或者 Lock 进行加锁
      * @param val
      */
-    public synchronized void produce(int val){
-        try{
-            //
-            int left = val;
-            while (left > 0){
-                // 生产完成的时候，等待，当消费者消费过之后，不满足条件，再继续进行生产
-                while (size >= capacity){
-                    wait();
-                }
-                // 这个条件是防止生产的数据超出 所能生产的最大数
-                int inc = size + left > capacity ? (capacity - size) : left;
-                size += inc;
-                left -= inc;
-                System.out.printf("%s produce(%3d) --> left=%3d, inc=%3d, size=%3d\n", Thread.currentThread().getName(), val, left, inc, size);
-                // 生产完成后通知消费者消费
-                notifyAll();
-            }
-        }catch (InterruptedException e){
-
-        }
+    public synchronized void produce(final int val){
+       try{
+           // 能生产的数量
+           int left = val;
+           while (left > 0){
+               // 如果仓库满了，就等待，当有消费者进行消费的时候，再进行后续操作
+               while (size >= capacity){
+                   System.out.println("等待消费 ing ...........");
+                   wait();
+               }
+               // 100 - 20 < 90 ? 80 : 90
+               // 根据仓库的当前容量计算可生产的最大数量
+               int inc = (capacity - size) < left  ? (capacity - size) : left;
+               // 增加 生产的容量
+               size += inc;
+               // 生产剩余数量
+               left -= inc;
+               System.out.printf("%s produce(%3d) --> left=%3d, inc=%3d, size=%3d\n",
+                       Thread.currentThread().getName(), val, left, inc, size);
+                // 生产完唤醒 消费者进行消费
+               notifyAll();
+           }
+       }catch (InterruptedException e){
+       }
     }
 
     /**
-     * 消费 产品
+     * 消费资源
+     * @param val
      */
-    public synchronized void customer(int val){
-        try {
+    public synchronized void customer(final int val){
+        try{
+            // 能消费的数量
             int left = val;
             while (left > 0){
-                // 没有库存的时候，通知生产者生产产品
+                // 仓库没有存量的时候，等待生产者生产
                 while (size <= 0){
+                    System.out.println("等待生产 ing ..........");
                     wait();
                 }
-                // 如果消费的产品和工厂里面还剩多少的产品进行比较
-                int inc = (size < left) ? size : left;
+                // 60 > 50 ? 50 : 60 ---> 消费的数量不能大于存量
+                int inc = size > left ? left : size;
+                // 容量 - 消费的数量
                 size -= inc;
+                // 没有东西可消费的数量
                 left -= inc;
-                System.out.printf("%s customer(%3d) --> left=%3d, inc=%3d, size=%3d\n", Thread.currentThread().getName(), val, left, inc, size);
-                // 消费完 通知 生产者继续生产
+                System.out.printf("%s customer(%3d) --> left=%3d, inc=%3d, size=%3d\n",
+                        Thread.currentThread().getName(), val, left, inc, size);
+                // 消费完成，等待生产者生产数据
                 notifyAll();
             }
-
         }catch (InterruptedException e){
-
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Dept{" +
-                "capacity=" + capacity +
-                ", size=" + size +
-                '}';
     }
 }
 
 /**
- * 生产者
+ * 生产者实例
  */
 class Produce{
 
@@ -128,7 +153,7 @@ class Produce{
 }
 
 /**
- * 消费者
+ * 消费者实例
  */
 class Customer{
 
@@ -146,6 +171,4 @@ class Customer{
             }
         }.start();
     }
-
 }
-
