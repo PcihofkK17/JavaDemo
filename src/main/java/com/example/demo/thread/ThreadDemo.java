@@ -21,7 +21,8 @@ package com.example.demo.thread;
  *
  *  3：join() - 让主线程等待子线程运行结束后才能继续进行
  *
- *  4：interrupt() - xianc
+ *  4：interrupt() - interrupt 不会终止运行状态下的线程，他会将线程的中断标记设置为 true
+ *
  *
  *
  *
@@ -63,12 +64,23 @@ class MyThread extends Thread{
 
     private int ticket = 10;
 
+    private Thread thread;
+
     @Override
     public void run() {
         for(int i = 0; i < 20; i++){
             if(this.ticket > 0 ){
                 System.out.println(this.getName() + "卖票: ticket " + ticket--);
             }
+        }
+    }
+
+    @Override
+    public void start() {
+        System.out.println("重写 start");
+        if(thread == null){
+            thread = new Thread();
+            thread.start();
         }
     }
 }
