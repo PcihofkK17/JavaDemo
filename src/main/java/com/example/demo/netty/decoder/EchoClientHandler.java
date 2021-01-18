@@ -39,7 +39,7 @@ public class EchoClientHandler extends ChannelHandlerAdapter {
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println("This count is: " + ++count + "Echo rececive server: [" + msg +"]");
+        System.out.println("This count is: " + ++count + " Echo rececive server: [" + msg +"]");
     }
 
     /**
