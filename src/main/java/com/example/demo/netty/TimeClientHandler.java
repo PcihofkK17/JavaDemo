@@ -38,15 +38,14 @@ public class TimeClientHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ByteBuf byteBuf = (ByteBuf) msg;
-
+        // TCP 粘包拆包
+/*        ByteBuf byteBuf = (ByteBuf) msg;
         byte[] bytes = new byte[byteBuf.readableBytes()];
-
         // 读取信息
         byteBuf.readBytes(bytes);
+        String body = new String(bytes, "UTF-8");*/
 
-        String body = new String(bytes, "UTF-8");
-
+        String body = (String) msg;
         System.out.println("now is: " + body + "; the count is: " + ++count);
     }
 

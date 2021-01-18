@@ -14,12 +14,11 @@ public class TimeServerHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        // 类似于 NIO
+        // TCP 粘包代码
+/*        // 类似于 NIO
         ByteBuf buffer = (ByteBuf) msg;
-
         // readableBytes() 获取缓冲区的可读的字节数
         byte[] bytes = new byte[buffer.readableBytes()];
-
         // 将 缓冲区
         buffer.readBytes(bytes);
 
@@ -37,7 +36,17 @@ public class TimeServerHandler extends ChannelHandlerAdapter {
         ByteBuf resp = Unpooled.copiedBuffer(currentTime.getBytes());
 
         // 异步发送到应答消息给客户端
-        ctx.write(resp);
+        ctx.write(resp);*/
+
+        // TCP 不粘包拆包代码
+        String body = (String) msg;
+        System.out.println("the time server receive order: " + body + "; the count is: " + ++count);
+        String currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body)
+                ? new Date(System.currentTimeMillis()).toString() : "BAD ORDER";
+        currentTime = currentTime + System.getProperty("line.separator");
+
+        ByteBuf resp = Unpooled.copiedBuffer(currentTime.getBytes());
+        ctx.writeAndFlush(resp);
     }
 
     @Override
