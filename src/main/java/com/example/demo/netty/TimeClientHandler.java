@@ -5,21 +5,35 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
+/**
+ * 测试 TCP 粘包、拆包
+ */
 public class TimeClientHandler extends ChannelHandlerAdapter {
 
-    private final ByteBuf firstMessage;
+    private int count;
+
+    private byte[] req;
+
+    // private final ByteBuf firstMessage;
 
     public TimeClientHandler() {
-        byte[] req = "QUERY TIME ORDER".getBytes();
+        req = ("QUERY TIME ORDER" + System.getProperty("line.separator")).getBytes();
         // 将数据读取到 ByteBuf 中
-        firstMessage = Unpooled.buffer(req.length);
+        // firstMessage = Unpooled.buffer(req.length);
 
-        firstMessage.writeBytes(req);
+        // firstMessage.writeBytes(req);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.writeAndFlush(firstMessage);
+        ByteBuf message = null;
+        for (int i = 0; i < 100; i++) {
+            message = Unpooled.buffer(req.length);
+            message.writeBytes(req);
+            ctx.writeAndFlush(message);
+        }
+
+        // ctx.writeAndFlush(firstMessage);
     }
 
     @Override
@@ -33,7 +47,7 @@ public class TimeClientHandler extends ChannelHandlerAdapter {
 
         String body = new String(bytes, "UTF-8");
 
-        System.out.println("now is: " + body);
+        System.out.println("now is: " + body + "; the count is: " + ++count);
     }
 
     @Override

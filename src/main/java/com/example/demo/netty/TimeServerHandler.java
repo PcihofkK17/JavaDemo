@@ -10,6 +10,8 @@ import java.util.Date;
 
 public class TimeServerHandler extends ChannelHandlerAdapter {
 
+    private int count;
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         // 类似于 NIO
@@ -21,12 +23,16 @@ public class TimeServerHandler extends ChannelHandlerAdapter {
         // 将 缓冲区
         buffer.readBytes(bytes);
 
-        String body = new String(bytes, "UTF-8");
+        // String body = new String(bytes, "UTF-8");
+        String body = new String(bytes, "UTF-8").substring(0, bytes.length
+                - System.getProperty("line.separator").length());
 
-        System.out.println("TimeServerHandler receive order: " + body);
+        System.out.println("the time server receive order: " + body + "; the count is: " + ++count);
 
         String currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body)
                 ? new Date(System.currentTimeMillis()).toString() : "BAD ORDER";
+
+        currentTime = currentTime + System.getProperty("line.separator");
 
         ByteBuf resp = Unpooled.copiedBuffer(currentTime.getBytes());
 
