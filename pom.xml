@@ -26,6 +26,14 @@
 
 	<dependencies>
 
+		<!-- MessagePack -->
+		<dependency>
+			<groupId>org.msgpack</groupId>
+			<artifactId>msgpack</artifactId>
+			<version>0.6.12</version>
+		</dependency>
+
+
 		<!-- netty -->
 		<dependency>
 			<groupId>io.netty</groupId>

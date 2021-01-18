@@ -1,4 +1,4 @@
-package com.example.demo.netty;
+package com.example.demo.netty.timedemo;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -25,7 +25,8 @@ import io.netty.handler.codec.string.StringDecoder;
  *                 .childHandler 绑定通道处理器，处理接收到的请求。且类一般继承 ChannelInitializer 类
  *                 .bind 绑定端口
  *
- *  LineBasedFrameDecoder: 解码器，依次便利 Bytebuf 中的可读字节，如果有 \n \r\n，就以此位置为结束位置。
+ *  LineBasedFrameDecoder: 解码器，依次便利 Bytebuf 中的可读字节，如果有 \n \r\n，就以此位置为结束位置
+ *                          。当超过设置长度还没有出现分隔符的话，就会抛出异常。
  *                          另外 netty 还提供了多种解码器，适用于不同的场景
  *
  *  StringDecoder: 解码器，将接受到的信息转换成字符串

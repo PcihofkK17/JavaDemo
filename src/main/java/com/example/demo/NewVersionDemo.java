@@ -14,6 +14,12 @@ import java.util.regex.Pattern;
 public class NewVersionDemo {
 
     public static void main(String[] args){
+        System.out.print("aaaaa");
+
+        System.out.print(System.getProperty("line.separator"));
+
+        System.out.print("nnnnnn");
+
         System.out.println(isNewVersion("4.5.3", "4.5"));
     }
 
