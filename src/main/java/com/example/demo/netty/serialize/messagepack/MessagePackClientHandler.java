@@ -59,7 +59,7 @@ public class MessagePackClientHandler extends ChannelHandlerAdapter {
      * @throws Exception
      */
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg){
         System.out.println(msg);
     }
 
