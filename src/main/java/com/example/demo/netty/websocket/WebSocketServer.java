@@ -1,4 +1,4 @@
-package com.example.demo.netty.serialize.websocket;
+package com.example.demo.netty.websocket;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -42,7 +42,7 @@ public class WebSocketServer {
                             pipeline.addLast("http-codec", new HttpServerCodec());
                             pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
                             pipeline.addLast("http-chunked", new ChunkedWriteHandler());
-                            pipeline.addLast("handler", new ChatWebSocketHandler());
+                            pipeline.addLast("handler", new BananaWebSocketServerHandler());
                         }
                     });
             ChannelFuture future = bootstrap.bind(port).sync();

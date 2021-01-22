@@ -1,4 +1,4 @@
-package com.example.demo.netty.serialize.websocket;
+package com.example.demo.netty.websocket;
 
 /**
  * netty websocket 聊天室启动类
