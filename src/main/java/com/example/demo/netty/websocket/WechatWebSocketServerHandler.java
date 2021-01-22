@@ -6,13 +6,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
@@ -26,24 +21,34 @@ import org.apache.log4j.Logger;
 
 
 /**
- * WebSocket服务端Handler
+ * 〈一句话功能简述〉
+ * WebSocket server handler
  *
+ * @author bf
+ * @create 2018/3/19
+ * @see [相关类/方法]（可选）
+ * @since [产品/模块版本] （可选）
  */
-public class BananaWebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
-	private static final Logger LOG = Logger.getLogger(BananaWebSocketServerHandler.class.getName());
+public class WechatWebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
+
+
+	private static final Logger LOG = Logger.getLogger(WechatWebSocketServerHandler.class.getName());
 	
 	private WebSocketServerHandshaker handshaker;
 	private ChannelHandlerContext ctx;
 	private String sessionId;
 
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
+	protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
 		if (msg instanceof FullHttpRequest) { // 传统的HTTP接入
 			handleHttpRequest(ctx, (FullHttpRequest) msg);
 		} else if (msg instanceof WebSocketFrame) { // WebSocket接入
 			handleWebSocketFrame(ctx, (WebSocketFrame) msg);
 		}
 	}
+
+
+
 
 	@Override
 	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
@@ -55,17 +60,8 @@ public class BananaWebSocketServerHandler extends SimpleChannelInboundHandler<Ob
 		LOG.error("WebSocket异常", cause);
 		ctx.close();
 		LOG.info(sessionId + " 	注销");
-		BananaService.logout(sessionId); // 注销
-		BananaService.notifyDownline(sessionId); // 通知有人下线
-	}
-
-	@Override
-	public void close(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-		LOG.info("WebSocket关闭");
-		super.close(ctx, promise);
-		LOG.info(sessionId + " 注销");
-		BananaService.logout(sessionId); // 注销
-		BananaService.notifyDownline(sessionId); // 通知有人下线
+		WechatService.logout(sessionId); // 注销
+		WechatService.notifyDownline(sessionId); // 通知有人下线
 	}
 
 	/**
@@ -84,7 +80,7 @@ public class BananaWebSocketServerHandler extends SimpleChannelInboundHandler<Ob
 
 		// 正常WebSocket的Http连接请求，构造握手响应返回
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-				"ws://localhost:8080/websocket", null, false);
+				"ws://localhost:9090/websocket", null, false);
 		handshaker = wsFactory.newHandshaker(request);
 		if (handshaker == null) { // 无法处理的websocket版本
 			WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
@@ -124,23 +120,23 @@ public class BananaWebSocketServerHandler extends SimpleChannelInboundHandler<Ob
 			response.setServiceId(request.getServiceId());
 			if (CODE.online.code.intValue() == request.getServiceId()) { // 客户端注册
 				String requestId = request.getRequestId();
-				if (StringUtils.isNotBlank(requestId)) {
+				if (StringUtils.isBlank(requestId)) {
 					response.setIsSucc(false).setMessage("requestId不能为空");
 					return;
-				} else if (StringUtils.isNotBlank(request.getName())) {
+				} else if (StringUtils.isBlank(request.getName())) {
 					response.setIsSucc(false).setMessage("name不能为空");
 					return;
-				} else if (BananaService.bananaWatchMap.containsKey(requestId)) {
+				} else if (WechatService.bananaWatchMap.containsKey(requestId)) {
 					response.setIsSucc(false).setMessage("您已经注册了，不能重复注册");
 					return;
 				}
-				if (!BananaService.register(requestId, new BananaService(ctx, request.getName()))) {
+				if (!WechatService.register(requestId, new WechatService(ctx, request.getName()))) {
 					response.setIsSucc(false).setMessage("注册失败");
 				} else {
 					response.setIsSucc(true).setMessage("注册成功");
 					
-					BananaService.bananaWatchMap.forEach((reqId, callBack) -> {
-						response.getHadOnline().put(reqId, ((BananaService)callBack).getName()); // 将已经上线的人员返回
+					WechatService.bananaWatchMap.forEach((reqId, callBack) -> {
+						response.getHadOnline().put(reqId, ((WechatService)callBack).getName()); // 将已经上线的人员返回
 						
 						if (!reqId.equals(requestId)) {
 							Request serviceRequest = new Request();
@@ -159,16 +155,16 @@ public class BananaWebSocketServerHandler extends SimpleChannelInboundHandler<Ob
 				this.sessionId = requestId; // 记录会话id，当页面刷新或浏览器关闭时，注销掉此链路
 			} else if (CODE.send_message.code.intValue() == request.getServiceId()) { // 客户端发送消息到聊天群
 				String requestId = request.getRequestId();
-				if (StringUtils.isNotBlank(requestId)) {
+				if (StringUtils.isBlank(requestId)) {
 					response.setIsSucc(false).setMessage("requestId不能为空");
-				} else if (StringUtils.isNotBlank(request.getName())) {
+				} else if (StringUtils.isBlank(request.getName())) {
 					response.setIsSucc(false).setMessage("name不能为空");
-				} else if (StringUtils.isNotBlank(request.getMessage())) {
+				} else if (StringUtils.isBlank(request.getMessage())) {
 					response.setIsSucc(false).setMessage("message不能为空");
 				} else {
 					response.setIsSucc(true).setMessage("发送消息成功");
 					
-					BananaService.bananaWatchMap.forEach((reqId, callBack) -> { // 将消息发送到所有机器
+					WechatService.bananaWatchMap.forEach((reqId, callBack) -> { // 将消息发送到所有机器
 						Request serviceRequest = new Request();
 						serviceRequest.setServiceId(CODE.receive_message.code);
 						serviceRequest.setRequestId(requestId);
@@ -184,13 +180,13 @@ public class BananaWebSocketServerHandler extends SimpleChannelInboundHandler<Ob
 				sendWebSocket(response.toJson());
 			} else if (CODE.downline.code.intValue() == request.getServiceId()) { // 客户端下线
 				String requestId = request.getRequestId();
-				if (StringUtils.isNotBlank(requestId)) {
+				if (StringUtils.isBlank(requestId)) {
 					sendWebSocket(response.setIsSucc(false).setMessage("requestId不能为空").toJson());
 				} else {
-					BananaService.logout(requestId);
+					WechatService.logout(requestId);
 					response.setIsSucc(true).setMessage("下线成功");
 					
-					BananaService.notifyDownline(requestId); // 通知有人下线
+					WechatService.notifyDownline(requestId); // 通知有人下线
 					
 					sendWebSocket(response.toJson());
 				}
@@ -217,14 +213,12 @@ public class BananaWebSocketServerHandler extends SimpleChannelInboundHandler<Ob
 			ByteBuf buf = Unpooled.copiedBuffer(response.status().toString(), CharsetUtil.UTF_8);
 			response.content().writeBytes(buf);
 			buf.release();
-
-			// HttpHeaders.setContentLength(response, response.content().readableBytes());
+			HttpUtil.setContentLength(response, response.content().readableBytes());
 		}
 
 		// 如果是非Keep-Alive，关闭连接
 		ChannelFuture f = ctx.channel().writeAndFlush(response);
-		// !HttpHeaders.isKeepAlive(request) ||
-		if (response.status().code() != 200) {
+		if (!HttpUtil.isKeepAlive(request) || response.status().code() != 200) {
 			f.addListener(ChannelFutureListener.CLOSE);
 		}
 	}

@@ -1,7 +1,7 @@
 package com.example.demo.netty.serialize.messagepack;
 
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
 /**
  * 〈一句话功能简述〉
@@ -12,7 +12,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @see [相关类/方法]（可选）
  * @since [产品/模块版本] （可选）
  */
-public class MessagePackServerHandler extends ChannelHandlerAdapter{
+public class MessagePackServerHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * 接收客户端 发送过来的信息

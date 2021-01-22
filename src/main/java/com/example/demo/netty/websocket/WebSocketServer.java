@@ -10,6 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
@@ -42,7 +43,7 @@ public class WebSocketServer {
                             pipeline.addLast("http-codec", new HttpServerCodec());
                             pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
                             pipeline.addLast("http-chunked", new ChunkedWriteHandler());
-                            pipeline.addLast("handler", new BananaWebSocketServerHandler());
+                            pipeline.addLast("handler", new WechatWebSocketServerHandler());
                         }
                     });
             ChannelFuture future = bootstrap.bind(port).sync();

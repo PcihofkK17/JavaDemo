@@ -1,8 +1,13 @@
 package com.example.demo.netty.websocket;
 
 /**
+ * 〈一句话功能简述〉
  * 统一消息码
  *
+ * @author bf
+ * @create 2018/3/19
+ * @see [相关类/方法]（可选）
+ * @since [产品/模块版本] （可选）
  */
 public enum CODE {
 	success(200, "成功"),
@@ -35,4 +40,6 @@ public enum CODE {
 		this.note = note;
 		this.code = code;
 	}
+
+
 }

@@ -1,12 +1,10 @@
 package com.example.demo.netty.serialize.protobuf;
 
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelHandlerInvoker;
-import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public class ProtoBufServerHandler extends ChannelHandlerAdapter{
+public class ProtoBufServerHandler extends ChannelInboundHandlerAdapter {
+
 
 
     @Override

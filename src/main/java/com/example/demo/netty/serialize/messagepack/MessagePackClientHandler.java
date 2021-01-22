@@ -1,8 +1,8 @@
 package com.example.demo.netty.serialize.messagepack;
 
 import com.example.demo.netty.entity.UserInfo;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.UUID;
 
@@ -15,7 +15,7 @@ import java.util.UUID;
  * @see [相关类/方法]（可选）
  * @since [产品/模块版本] （可选）
  */
-public class MessagePackClientHandler extends ChannelHandlerAdapter {
+public class MessagePackClientHandler extends ChannelInboundHandlerAdapter {
 
     private int count;
 

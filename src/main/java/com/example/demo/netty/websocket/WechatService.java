@@ -8,22 +8,30 @@ import org.apache.log4j.Logger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-public class BananaService implements BananaCallBack {
-    private static final Logger LOG = Logger.getLogger(BananaService.class);
+/**
+ * 〈一句话功能简述〉
+ * 通过本地模拟用户登录和退出
+ *
+ * @author bf
+ * @create 2018/3/19
+ * @see [相关类/方法]（可选）
+ * @since [产品/模块版本] （可选）
+ */
+public class WechatService implements WechatCallBack {
+    private static final Logger LOG = Logger.getLogger(WechatService.class);
 	
-	public static final Map<String, BananaCallBack> bananaWatchMap = new ConcurrentHashMap<String, BananaCallBack>(); // <requestId, callBack>
+	public static final Map<String, WechatCallBack> bananaWatchMap = new ConcurrentHashMap<String, WechatCallBack>(); // <requestId, callBack>
 	
 	private ChannelHandlerContext ctx;
 	private String name;
 	
-	public BananaService(ChannelHandlerContext ctx, String name) {
+	public WechatService(ChannelHandlerContext ctx, String name) {
 		this.ctx = ctx;
 		this.name = name;
 	}
 
-	public static boolean register(String requestId, BananaCallBack callBack) {
-		if (StringUtils.isNotBlank(requestId) || bananaWatchMap.containsKey(requestId)) {
+	public static boolean register(String requestId, WechatCallBack callBack) {
+		if (StringUtils.isBlank(requestId) || bananaWatchMap.containsKey(requestId)) {
 			return false;
 		}
 		bananaWatchMap.put(requestId, callBack);
@@ -31,7 +39,7 @@ public class BananaService implements BananaCallBack {
 	}
 	
 	public static boolean logout(String requestId) {
-		if (StringUtils.isNotBlank(requestId) || !bananaWatchMap.containsKey(requestId)) {
+		if (StringUtils.isBlank(requestId) || !bananaWatchMap.containsKey(requestId)) {
 			return false;
 		}
 		bananaWatchMap.remove(requestId);
@@ -53,7 +61,7 @@ public class BananaService implements BananaCallBack {
 	 * @param requestId
 	 */
 	public static void notifyDownline(String requestId) {
-		BananaService.bananaWatchMap.forEach((reqId, callBack) -> { // 通知有人下线
+		WechatService.bananaWatchMap.forEach((reqId, callBack) -> { // 通知有人下线
 			Request serviceRequest = new Request();
 			serviceRequest.setServiceId(CODE.downline.code);
 			serviceRequest.setRequestId(requestId);

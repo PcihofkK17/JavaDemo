@@ -3,9 +3,18 @@ package com.example.demo.netty.websocket;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.base.Strings;
 import com.google.gson.Gson;
+import org.apache.commons.lang3.StringUtils;
 
+/**
+ * 〈一句话功能简述〉
+ * response 返回参数
+ *
+ * @author bf
+ * @create 2018/3/19
+ * @see [相关类/方法]（可选）
+ * @since [产品/模块版本] （可选）
+ */
 public class Response {
 	
 	private static Gson gson = new Gson();
@@ -72,7 +81,7 @@ public class Response {
 	}
 
 	public static Response create(String json) {
-		if (!Strings.isNullOrEmpty(json)) {
+		if (StringUtils.isNotBlank(json)) {
 			return gson.fromJson(json, Response.class);
 		}
 		return null;

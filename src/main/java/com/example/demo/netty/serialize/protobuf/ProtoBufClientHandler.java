@@ -1,15 +1,12 @@
 package com.example.demo.netty.serialize.protobuf;
 
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelHandlerInvoker;
-import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProtoBufClientHandler extends ChannelHandlerAdapter{
+public class ProtoBufClientHandler extends ChannelInboundHandlerAdapter {
 
     private int count;
 

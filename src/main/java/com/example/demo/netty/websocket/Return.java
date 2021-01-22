@@ -5,8 +5,13 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 
 /**
+ * 〈一句话功能简述〉
  * 通用返回对象封装
  *
+ * @author bf
+ * @create 2018/3/19
+ * @see [相关类/方法]（可选）
+ * @since [产品/模块版本] （可选）
  */
 public class Return extends HashMap<String, Object> {
 	
