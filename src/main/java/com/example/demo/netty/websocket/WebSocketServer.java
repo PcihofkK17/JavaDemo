@@ -10,7 +10,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
@@ -33,8 +32,14 @@ public class WebSocketServer {
 
         EventLoopGroup worker = new NioEventLoopGroup();
 
+        // 处理化 netty 服务器，并绑定端口
         ServerBootstrap bootstrap = new ServerBootstrap();
         try {
+            /**
+             * channel: 设置 ChannelFactory 工厂类型
+             * childHandler: 添加解析器，处理器等， 按顺序执行，处理每次客户端进来的请求
+             *
+             * */
             bootstrap.group(boss, worker).channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
@@ -46,6 +51,7 @@ public class WebSocketServer {
                             pipeline.addLast("handler", new WechatWebSocketServerHandler());
                         }
                     });
+            // 绑定本地端口，并同步等待完成，
             ChannelFuture future = bootstrap.bind(port).sync();
 
             System.out.println("netty websocket 聊天室启动，端口：" + port);

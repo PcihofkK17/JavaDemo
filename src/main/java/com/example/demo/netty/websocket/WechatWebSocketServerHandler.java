@@ -24,6 +24,8 @@ import org.apache.log4j.Logger;
  * 〈一句话功能简述〉
  * WebSocket server handler
  *
+ * WebScoket原理: https://www.zhihu.com/question/20215561
+ *
  * @author bf
  * @create 2018/3/19
  * @see [相关类/方法]（可选）
@@ -66,25 +68,39 @@ public class WechatWebSocketServerHandler extends SimpleChannelInboundHandler<Ob
 
 	/**
 	 * 处理Http请求，完成WebSocket握手<br/>
-	 * 注意：WebSocket连接第一次请求使用的是Http
+	 * 注意：WebSocket连接第一次请求使用的是Http，Http形式进入，后面就是WebSocket方式的连接了
+	 *
+	 *
 	 * @param ctx
 	 * @param request
 	 * @throws Exception
 	 */
 	private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
-		// 如果HTTP解码失败，返回HHTP异常
-		if (!request.decoderResult().isSuccess() || (!"websocket".equals(request.headers().get("Upgrade")))) {
+		/**
+		 * 如果HTTP解码失败，返回HHTP异常
+		 * DecoderResult: Http 请求解析结果
+		 * Upgrade: 再判断是否是 websocket 请求，如果是websocket,就返回
+		 */
+		if (request.decoderResult().isFailure() || (!"websocket".equals(request.headers().get("Upgrade")))) {
 			sendHttpResponse(ctx, request, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
 			return;
 		}
 
-		// 正常WebSocket的Http连接请求，构造握手响应返回
+		/**
+		 * 正常WebSocket的Http连接请求，构造握手响应返回
+		 * WebSocketServerHandshakerFactory: 创建一个 WebSocket 工厂类(网络套接字)
+		 * 	webSocketURL: 网络套接字通信URL,后续的网络套接字将全部发送到这个 URL 上面
+		 * 	subprotocols: 支持的协议的CSV。 如果不支持子协议，则为空。
+		 *  allowExtensions: 允许在web套接字的保留位中使用扩展名？？？？？
+		 */
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
 				"ws://localhost:9090/websocket", null, false);
+		// 创建全局 WebSocket
 		handshaker = wsFactory.newHandshaker(request);
 		if (handshaker == null) { // 无法处理的websocket版本
 			WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
-		} else { // 向客户端发送websocket握手,完成握手
+		} else {
+			// 向客户端发送websocket握手,完成握手
 			handshaker.handshake(ctx.channel(), request);
 			// 记录管道处理上下文，便于服务器推送数据到客户端
 			this.ctx = ctx;
@@ -217,6 +233,11 @@ public class WechatWebSocketServerHandler extends SimpleChannelInboundHandler<Ob
 		}
 
 		// 如果是非Keep-Alive，关闭连接
+		/**
+		 * 非 Keep-Alive 或者，不是200 状态码的话，关闭连接
+		 * Keep-Alive： Http1.1，新增的东西，可以在请求中发送多个 request ,返回多个 response, 只有这样，才能使用 WebSocket
+		 * 非200状态码，同样也关闭
+		 */
 		ChannelFuture f = ctx.channel().writeAndFlush(response);
 		if (!HttpUtil.isKeepAlive(request) || response.status().code() != 200) {
 			f.addListener(ChannelFutureListener.CLOSE);
