@@ -18,8 +18,10 @@ import io.netty.handler.stream.ChunkedWriteHandler;
  * API 详解:
  *  1: HttpServerCodec: 将请求或应答消息，编码或解码为 HTTP 消息
  *  2: HttpObjectAggregator: 目的是将 Http 的多个部分组合成一条完整的 Http 消息(HTTP 消息组装)
- *  3: ChunkedWriteHandler: 像客户端发送 HTML5 文件, 主要是用来处理大数据流，如果直接传送 1G 的文件，很可能蹭爆JVM
+ *  3: ChunkedWriteHandler: 主要是用来处理大数据流，如果直接传送 1G 的文件，很可能蹭爆JVM
  *                          但是加了这个就没事了。(Http 消息通信支持)
+ *                          用于文件内容的直接传输，不包括应用程序对数据的任何处理，若需要将数据从文件系统复制到用户内存，
+ *                          可以使用ChunkedWriteHandler，它支持异步编写大型数据流，而不会导致高内存消耗
  */
 public class WebSocketServer {
 
