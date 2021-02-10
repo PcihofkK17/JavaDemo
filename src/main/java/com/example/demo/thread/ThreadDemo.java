@@ -49,6 +49,10 @@ public class ThreadDemo {
         Thread r2 = new Thread(runnable);
         Thread r3 = new Thread(runnable);
 
+        new Thread(() -> {
+            System.out.println("aaa");
+        });
+
         r1.start();
         r2.start();
         r3.start();
