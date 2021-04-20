@@ -2,9 +2,10 @@ package com.example.demo.java8;
 
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,6 +16,65 @@ import java.util.stream.Stream;
  */
 public class StreamDemo {
 
+    @Test
+    public void distinctTest() {
+        Person p1 = new Person(1, "dY");
+        Person p2 = new Person(1, "+0");
+        Person p3 = new Person(2, "moon");
+        Person p4 = new Person(3, "st");
+        List<Person> list = new ArrayList<>();
+        list.add(p1);
+        list.add(p2);
+        list.add(p3);
+        list.add(p4);
+
+        List<Person> collect = list.stream().distinct().collect(Collectors.toList());
+        System.out.println(collect);
+
+    }
+
+
+    @Test
+    public void testList11() {
+        List<Double> aaa = new ArrayList<>();
+        aaa.add(1.0);
+        aaa.add(0.58);
+        aaa.add(9.56);
+        aaa.add(1.53246);
+        aaa.add(1.53247);
+
+        List<Double> collect = aaa.stream().sorted((n1, n2) -> -new Double(n1).compareTo(new Double(n2))).collect(Collectors.toList());
+
+        System.out.println(collect);
+
+        List<Integer> list = Arrays.asList(new Integer[]{1,9,4,6,2,7,5,3});  //构造list，填充值
+
+        list  = list.stream().sorted((n1,n2)->-n1.compareTo(n2)).collect(Collectors.toList());
+
+        System.out.println(list);
+
+    }
+
+
+    @Test
+    public void testList(){
+
+        for (int i = 0; i < (double)1 / 100; i++) {
+            System.out.println("22222222----------");
+        }
+
+        double i = (double)50 / 100;
+        System.out.println(i);
+
+        LocalDate localDate = LocalDate.now();
+        System.out.println(localDate);
+        localDate = localDate.minusDays(1);
+        System.out.println(localDate);
+
+
+        System.out.println(LocalDate.now().minusDays(-2).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+    }
+
     /**
      * 流的构造和 map 方法的使用
      *  map 和 flatMap 的区别
@@ -24,21 +84,17 @@ public class StreamDemo {
     @Test
     public void stream1(){
 
-        String[] strings = {"a", "b", "c"};
-        List<String> collect = Arrays.asList(strings).stream().map(String::toUpperCase).collect(Collectors.toList());
+        List<Integer> tetst = new ArrayList<>();
+        tetst.add(1);
+        tetst.add(2);
+        tetst.add(3);
+
+        List<Boolean> collect = tetst.stream().map(c -> c >= 2).collect(Collectors.toList());
         System.out.println(collect);
 
-        List<String> collect1 = Arrays.asList(strings).stream().map(n -> n + n).collect(Collectors.toList());
-        System.out.println(collect1);
+        List<Integer> collect1 = tetst.stream().filter(c -> c >= 2).collect(Collectors.toList());
+        System.out.println(collect);
 
-        /**获取单词，并且去重**/
-        List<String> list = Arrays.asList("hello welcome", "world hello", "hello world",
-                "hello world welcome");
-
-        //map和flatmap的区别
-        list.stream().map(item -> Arrays.stream(item.split(" "))).distinct().collect(Collectors.toList()).forEach(System.out::println);
-        System.out.println("---------- ");
-        list.stream().flatMap(item -> Arrays.stream(item.split(" "))).distinct().collect(Collectors.toList()).forEach(System.out::println);
     }
 
     /**

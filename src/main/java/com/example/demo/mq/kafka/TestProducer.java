@@ -46,7 +46,7 @@ public class TestProducer {
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 
         // 配置 producer config 类
-        ProducerConfig config = new ProducerConfig(properties);
+//        ProducerConfig config = new ProducerConfig(properties);
         // 创建 Producer 生产者
         Producer<String, String> producer = new KafkaProducer<>(properties);
 
